@@ -1,0 +1,18 @@
+/*
+ * Compute AND of two byte 
+ */
+program And {
+	const N=8;
+	type Byte = Int<N>;
+	type AliceInput = Byte;
+	type BobInput = Byte;
+	type AliceOutput = Byte; 
+	type BobOutput = Byte; 
+	type Input = struct {AliceInput alice,	BobInput bob};
+	type Output = struct {AliceOutput alice, BobOutput bob};
+
+	function Output output(Input input) {
+           output.alice = (input.bob & input.alice);
+           output.bob = (input.bob & input.alice);
+	}
+}

@@ -1,0 +1,21 @@
+/*
+ * Alice accesses an entry in Bob's keyed-DB 
+ */
+program Keyed_DB_Search {
+    const DBsize = 16;
+    type Key = Int<6>;
+    type Data = Int<24>;
+    type Pair = struct {Key key, Data data};
+    type AliceInput = Key;
+    type BobInput = Pair[DBsize];
+    type AliceOutput = Data;
+    type Output = struct {AliceOutput alice};
+    type Input = struct {AliceInput alice, BobInput bob};
+
+    function Output output(Input input) {
+       var Key i ;
+       for (i = 0 to DBsize-1)
+          if (input.alice == input.bob[i].key)
+               output.alice = input.bob[i].data;
+    }
+}

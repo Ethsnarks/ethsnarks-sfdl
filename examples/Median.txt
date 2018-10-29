@@ -1,0 +1,48 @@
+/*
+ * Compute the Median of two sorted arrays
+ */
+program Median {
+
+// Constants
+
+const inp_size = 10;
+
+// Type Definitions
+
+type Elem  =  Int<16>;
+type AliceInput = Elem[inp_size];
+type AliceOutput = Int<16>;
+type BobInput = Elem[inp_size];
+type BobOutput = Int<16>;
+type Input = struct {AliceInput alice, BobInput bob};
+type Output = struct {AliceOutput alice, BobOutput bob};
+
+// Function Definitions
+
+// This is the main function
+function Output output(Input input) {
+
+   var Int<8> i;
+   var Int<8> ai;
+   var Int<8> bi;
+
+   ai=0;
+   bi=0;
+
+   for (i = 1 to inp_size-1) {
+      if (input.alice[ai] >= input.bob[bi])
+         bi = bi + 1;
+      else
+         ai = ai + 1;
+   }
+         
+   if (input.alice[ai] < input.bob[bi]) {
+      output.alice = input.alice[ai];
+      output.bob= input.alice[ai];
+   } else {
+      output.alice = input.bob[bi];
+      output.bob = input.bob[bi];
+   }
+}
+
+}

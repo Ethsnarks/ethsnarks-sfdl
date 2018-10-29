@@ -1,0 +1,19 @@
+program beta {
+  type int = Int<31>;
+
+  type AliceInput = int;
+  type BobInput = int;
+
+  type AliceOutput = int;
+  type BobOutput = int;
+
+  type Input = struct {AliceInput alice, BobInput bob};
+  type Output = struct {AliceOutput alice, BobOutput bob};
+
+  function Output output(Input input) {
+    //var int x;
+    //x = -20;
+    output.alice = input.alice - input.bob;
+    output.bob = input.bob - 20;
+  }
+}
