@@ -12,7 +12,11 @@
 	</target>
 
 	<target name="dist" depends="compile">
-		<jar jarfile="${dist}/sfdl.jar" basedir="${build}" />
+		<jar jarfile="${dist}/sfdl.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Main-Class" value="SFE.Compiler.SFECompiler" />
+			</manifest>
+		</jar>
 	</target>
 
 	<target name="clean">
