@@ -53,11 +53,12 @@ import sys
 from collections import namedtuple, OrderedDict
 
 
-RE_VAR_LINE = re.compile(r'(?P<party>Alice|Bob) (input|output) (?P<type>integer) "(?P<name>[^"]+)" \[\s*(?P<inputs>([0-9]+\s)+)\]')
+RE_VAR_LINE = re.compile(r'(?P<party>Alice|Bob) (?P<direction>input|output) (?P<type>integer) "(?P<name>[^"]+)" \[\s*(?P<inputs>([0-9]+\s)+)\]')
 
 
 _VariableStruct = namedtuple('_VariableStruct', (
 	'party',
+	'direction',
 	'type',
 	'name',
 	'wires'))
@@ -69,9 +70,23 @@ class Variable(_VariableStruct):
 		m = RE_VAR_LINE.match(line)
 		return cls(
 			m.group('party'),
+			m.group('direction'),
 			m.group('type'),
 			m.group('name'),
 			[int(_) for _ in m.group('inputs').strip().split()])
+
+
+def find_remapping(wire_id, passthru):
+	"""
+	Walk through the remappings until the terminal
+	If no mapping exists, return the wire
+	"""
+	while True:
+		if wire_id in passthru:
+			wire_id = passthru[wire_id]
+			continue
+		break
+	return wire_id
 
 
 _GateStruct = namedtuple('_GateStruct', (
@@ -84,10 +99,11 @@ _GateStruct = namedtuple('_GateStruct', (
 	'comment'))
 
 
-RE_GATE_LINE = re.compile(r'^(?P<wire>[0-9]+) ((?P<is_output>output )?gate arity (?P<arity>[0-9]+) table \[\s(?P<table>([01]\s?)+)\] inputs \[\s(?P<inputs>[0-9]+\s)+\]|(?P<is_input>input))(?P<comment>\s*//.*)?$')
+RE_GATE_LINE = re.compile(r'^(?P<wire>[0-9]+) ((?P<is_output>output )?gate arity (?P<arity>[0-9]+) table \[\s(?P<table>([01]\s?)+)\] inputs \[\s(?P<inputs>([0-9]+\s)+)\]|(?P<is_input>input))(?P<comment>\s*//.*)?$')
 
 
 class Gate(_GateStruct):
+	@property
 	def is_constant(self):
 		"""
 		Does the gate restrict the output value to a constant value?
@@ -95,6 +111,7 @@ class Gate(_GateStruct):
 		"""
 		return self.arity == 0
 
+	@property
 	def is_passthru(self):
 		"""
 		Does the gate act as a passthru?
@@ -102,6 +119,7 @@ class Gate(_GateStruct):
 		"""
 		return self.arity == 1 and self.table == [0, 1]
 
+	@property
 	def is_not(self):
 		"""
 		Does the gate as act a NOT() statement?
@@ -109,6 +127,26 @@ class Gate(_GateStruct):
 		e.g. 0 -> 1, and 1 -> 0
 		"""
 		return self.arity == 1 and self.table == [1, 0]
+
+	def remap_inputs(self, passthru):
+		"""
+		Given a list of inputs, if they exist within the passthru dictionary
+		then we map it back to the previous value.
+		"""
+		if self.inputs is None:
+			return self
+		new_inputs = []
+		for wire_id in self.inputs:
+			new_inputs.append(find_remapping(wire_id, passthru))
+		if new_inputs == self.inputs:
+			return self
+		return Gate(self.is_input,
+					self.is_output,
+					self.wire,
+					self.arity,
+					self.table,
+					new_inputs,
+					self.comment)
 
 	@classmethod
 	def from_line(cls, line, lineno):
@@ -180,13 +218,13 @@ def parse_gates(file_handle):
 
 		parsed = Gate.from_line(line, lineno)
 		if not parsed:
-			return 2
+			raise RuntimeError("Invalid line")
 
 		if parsed.wire in wires:
 			print("Error on line ", lineno)
 			print("Line: ", line)
 			print("Duplicate wire: ", parsed.wire)
-			return 3
+			raise RuntimeError("Invalid wire")
 
 		wires[parsed.wire] = parsed
 
@@ -194,13 +232,20 @@ def parse_gates(file_handle):
 
 
 def parse_variables(file_handle):
+	"""
+	Parse the X.fmt file, which defines the input and output variables
+	"""
 	variables = OrderedDict()
-
 	for lineno, line in enumerate(file_handle):
 		line = line.strip()
 		if not line:
 			continue
 		parsed = Variable.from_line(line, lineno)
+		if parsed.name in variables:
+			print("Error on line ", lineno)
+			print("Line: ", line)
+			print("Duplicate variable: ", parsed.name)
+			raise RuntimeError("Syntax error")
 		variables[ parsed.name ] = parsed
 
 	return variables
@@ -212,13 +257,55 @@ def main(args):
 		return 1
 
 	with open(args[0], 'r') as handle:
-		wires = parse_gates(handle)
+		gates = parse_gates(handle)
 
 	with open(args[1], 'r') as handle:
 		variables = parse_variables(handle)
 
-	print(wires)
-	print(variables)
+	passthru = dict()
+	constants = dict()
+	wires = set()
+	opcodes = list()
+
+	for gate in gates.values():
+		if gate.inputs is not None:
+			gate = gate.remap_inputs(passthru)
+			wires.update(gate.inputs)
+		wires.add(gate.wire)
+
+		# Translate gates into instructions
+		if gate.is_constant:
+			# XXX: constants
+			constants[gate.wire] = gate.table[0]
+			continue
+		elif gate.is_passthru:
+			passthru[gate.wire] = gate.inputs[0]
+			continue
+		elif gate.is_not:
+			# Output XOR gate
+			# XXX: 'ONE' ?
+			opcodes.append("xor in 2 <ONE %d> out 1 <%d>" % (gate.inputs[0], gate.wire))
+		elif not gate.is_input:
+			opcodes.append("table %d [%s] in <%s> out <%s>"  % (
+							gate.arity,
+							' '.join(str(_) for _ in gate.table),
+							' '.join(str(_) for _ in gate.inputs),
+							gate.wire))
+
+	inputs = [_ for _ in variables.values() if _.direction == 'input']
+	outputs = [_ for _ in variables.values() if _.direction == 'output']
+
+	print("total", len(wires))
+	for inp in inputs:
+		for wire_id in inp.wires:
+			print("input", find_remapping(wire_id, passthru))
+
+	for op in opcodes:
+		print(op)
+
+	for out in outputs:
+		for wire_id in out.wires:
+			print("output", find_remapping(wire_id, passthru))
 
 
 if __name__ == "__main__":
