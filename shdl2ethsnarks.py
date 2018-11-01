@@ -99,7 +99,7 @@ _GateStruct = namedtuple('_GateStruct', (
 	'comment'))
 
 
-RE_GATE_LINE = re.compile(r'^(?P<wire>[0-9]+) ((?P<is_output>output )?gate arity (?P<arity>[0-9]+) table \[\s(?P<table>([01]\s?)+)\] inputs \[\s(?P<inputs>([0-9]+\s)+)\]|(?P<is_input>input))(?P<comment>\s*//.*)?$')
+RE_GATE_LINE = re.compile(r'^(?P<wire>[0-9]+) ((?P<is_output>output )?gate arity (?P<arity>[0-9]+) table \[\s*(?P<table>([01]\s?)+)\] inputs \[\s*(?P<inputs>([0-9]+\s)+)?\s*\]|(?P<is_input>input))(?P<comment>\s*//.*)?$')
 
 
 class Gate(_GateStruct):
@@ -276,15 +276,18 @@ def main(args):
 		# Translate gates into instructions
 		if gate.is_constant:
 			# XXX: constants
-			constants[gate.wire] = gate.table[0]
-			continue
+			constants[gate.table[0]] = gate.wire
+			opcodes.append("table 1 [%d %d] in <%d> out <%d> # constant %d" % (
+				gate.table[0], gate.table[0],
+				gate.wire, gate.wire,
+				gate.table[0]))
 		elif gate.is_passthru:
 			passthru[gate.wire] = gate.inputs[0]
-			continue
 		elif gate.is_not:
 			# Output XOR gate
-			# XXX: 'ONE' ?
-			opcodes.append("xor in 2 <ONE %d> out 1 <%d>" % (gate.inputs[0], gate.wire))
+			if 1 not in constants:
+				raise RuntimeError("1 not in constants!")
+			opcodes.append("xor in 2 <%d %d> out 1 <%d> #  not" % (constants[1], gate.inputs[0], gate.wire))
 		elif not gate.is_input:
 			opcodes.append("table %d [%s] in <%s> out <%s>"  % (
 							gate.arity,
@@ -300,12 +303,18 @@ def main(args):
 		for wire_id in inp.wires:
 			print("input", find_remapping(wire_id, passthru))
 
-	for op in opcodes:
-		print(op)
-
 	for out in outputs:
 		for wire_id in out.wires:
 			print("output", find_remapping(wire_id, passthru))
+
+	for inp in inputs:
+		for wire_id in inp.wires:
+			wire_id = find_remapping(wire_id, passthru)
+			print("mul in 2 <%d %d> out 1 <%d>  # input bitness" % (wire_id, wire_id, wire_id))
+
+	for op in opcodes:
+		print(op)
+
 
 
 if __name__ == "__main__":
