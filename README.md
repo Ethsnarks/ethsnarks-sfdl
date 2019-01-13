@@ -2,26 +2,24 @@
 
 This repository introduces EthSnarks support for SFDL (the Secure Function Definition Language, version 1) as defined by [Fairplay](Fairplay-whitepaper.pdf). SFDL programs are translated into SHDL (Secure Hardware Definition Language), which can then be translated directly into a format supported by EthSnarks.
 
+[![Build Status](https://travis-ci.org/HarryR/ethsnarks-sfdl.svg?branch=master)](https://travis-ci.org/HarryR/ethsnarks-sfdl)
 
 ## Example Program
 
 ```
 /*
- * Compute AND of two byte 
+ * Check which of two Millionaires is richer
  */
-program And {
-	const N=8;
-	type Byte = Int<N>;
-	type AliceInput = Byte;
-	type BobInput = Byte;
-	type AliceOutput = Byte; 
-	type BobOutput = Byte; 
-	type Input = struct {AliceInput alice,	BobInput bob};
-	type Output = struct {AliceOutput alice, BobOutput bob};
+program Millionaires {
+    type int = Int<64>;
+	type Output = struct {Boolean alice,
+            Boolean bob};
+	type Input = struct {int alice,
+            int bob};
 
 	function Output output(Input input) {
-           output.alice = (input.bob & input.alice);
-           output.bob = (input.bob & input.alice);
+            output.alice = (input.alice > input.bob);
+            output.bob = (input.bob > input.alice);
 	}
 }
 ```
@@ -29,38 +27,28 @@ program And {
 Which is compiled and optimised to produce a SHDL file:
 
 ```
-0 input		//output$input.bob$0
-1 input		//output$input.bob$1
-2 input		//output$input.bob$2
-3 input		//output$input.bob$3
-4 input		//output$input.bob$4
-5 input		//output$input.bob$5
-6 input		//output$input.bob$6
-7 input		//output$input.bob$7
-8 input		//output$input.alice$0
-9 input		//output$input.alice$1
-10 input		//output$input.alice$2
-11 input		//output$input.alice$3
-12 input		//output$input.alice$4
-13 input		//output$input.alice$5
-14 input		//output$input.alice$6
-15 input		//output$input.alice$7
-16 output gate arity 2 table [ 0 0 0 1 ] inputs [ 8 0 ]	//output$output.alice$0
-17 output gate arity 2 table [ 0 0 0 1 ] inputs [ 9 1 ]	//output$output.alice$1
-18 output gate arity 2 table [ 0 0 0 1 ] inputs [ 10 2 ]	//output$output.alice$2
-19 output gate arity 2 table [ 0 0 0 1 ] inputs [ 11 3 ]	//output$output.alice$3
-20 output gate arity 2 table [ 0 0 0 1 ] inputs [ 12 4 ]	//output$output.alice$4
-21 output gate arity 2 table [ 0 0 0 1 ] inputs [ 13 5 ]	//output$output.alice$5
-22 output gate arity 2 table [ 0 0 0 1 ] inputs [ 14 6 ]	//output$output.alice$6
-23 output gate arity 2 table [ 0 0 0 1 ] inputs [ 15 7 ]	//output$output.alice$7
-24 output gate arity 1 table [ 0 1 ] inputs [ 16 ]	//output$output.bob$0
-25 output gate arity 1 table [ 0 1 ] inputs [ 17 ]	//output$output.bob$1
-26 output gate arity 1 table [ 0 1 ] inputs [ 18 ]	//output$output.bob$2
-27 output gate arity 1 table [ 0 1 ] inputs [ 19 ]	//output$output.bob$3
-28 output gate arity 1 table [ 0 1 ] inputs [ 20 ]	//output$output.bob$4
-29 output gate arity 1 table [ 0 1 ] inputs [ 21 ]	//output$output.bob$5
-30 output gate arity 1 table [ 0 1 ] inputs [ 22 ]	//output$output.bob$6
-31 output gate arity 1 table [ 0 1 ] inputs [ 23 ]	//output$output.bob$7
+input 0		#output$input.bob$0
+input 1		#output$input.bob$1
+input 2		#output$input.bob$2
+input 3		#output$input.alice$0
+input 4		#output$input.alice$1
+input 5		#output$input.alice$2
+table 2 [ 1 0 0 0 ] in 2 < 3 4 > out 1 < 6 >
+table 2 [ 0 1 1 0 ] in 2 < 3 4 > out 1 < 7 >
+table 2 [ 1 0 0 1 ] in 2 < 6 5 > out 1 < 8 >
+table 2 [ 0 0 0 1 ] in 2 < 3 0 > out 1 < 9 >
+table 3 [ 0 0 0 1 0 1 1 1 ] in 3 < 9 7 1 > out 1 < 10 >
+table 2 [ 0 1 1 0 ] in 2 < 8 2 > out 1 < 11 >
+table 2 [ 0 1 1 0 ] in 2 < 10 11 > out 1 < 12 >
+table 1 [ 0 1 ] in 1 < 12 > out 1 < 13 >	#output$output.alice$0
+table 2 [ 1 0 0 0 ] in 2 < 0 1 > out 1 < 14 >
+table 2 [ 0 1 1 0 ] in 2 < 0 1 > out 1 < 15 >
+table 2 [ 1 0 0 1 ] in 2 < 14 2 > out 1 < 16 >
+table 2 [ 0 0 0 1 ] in 2 < 0 3 > out 1 < 17 >
+table 3 [ 0 0 0 1 0 1 1 1 ] in 3 < 17 15 4 > out 1 < 18 >
+table 2 [ 0 1 1 0 ] in 2 < 16 5 > out 1 < 19 >
+table 2 [ 0 1 1 0 ] in 2 < 18 19 > out 1 < 20 >
+table 1 [ 0 1 ] in 1 < 20 > out 1 < 21 >	#output$output.bob$0
 ```
 
 In the context of zero-knowledge proofs all of the program inputs should be considered as 'private' with the outputs being public. That is to say, you provide a zero-knowledge proof that executing the program with an unknown set of inputs results in a publicly verifiable set of outputs.
