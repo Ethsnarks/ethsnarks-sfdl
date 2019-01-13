@@ -116,11 +116,11 @@ public class BinaryOpExpression extends OperationExpression {
 	 */
 	public void toCircuit(PrintWriter circuit) {
 		((OutputWriter) op).toCircuit(circuit);
-		circuit.print(" inputs [ ");
+		circuit.print(" in 2 < ");
 		((OutputWriter) right).toCircuit(circuit);
 		circuit.print(" ");
 		((OutputWriter) left).toCircuit(circuit);
-		circuit.print(" ]");
+		circuit.print(" >");
 	}
 
 	/**

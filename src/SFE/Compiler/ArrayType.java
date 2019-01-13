@@ -124,19 +124,12 @@ public class ArrayType extends ParentType {
 				str += ((ArrayType) baseType).toFormat(parentName + "[" + i +
 				                                       "]", function);
 			} else {
-				// get input/ouput and alice/bob
+				// get input/ouput
 				String params   = parentName + "[" + i + "]";
-				String alicebob;
 
-				if (params.startsWith("output.alice")) {
-					alicebob = "Alice";
-				} else {
-					alicebob = "Bob";
-				}
-
-				// <Alice|Bob> <Input|Ouput> <type> <prompt(field name)> 
+				// <Input|Ouput> <type> <prompt(field name)> 
 				// <'[' input bits ']'>
-				str += (alicebob + " output " + baseType.toFormat() + " \"" +
+				str += (" output " + baseType.toFormat() + " \"" +
 				params + "\" [ ");
 
 				for (int j = 0; j < baseType.size(); j++) {

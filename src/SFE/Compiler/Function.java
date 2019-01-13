@@ -327,24 +327,40 @@ public class Function implements OutputWriter, Optimize, Multi2SingleBit {
 
 		String str = new String();
 
+		str += "{\"input\":[\n";
+
 		// print the inputs form the OutputWriter
 		for (int i = 0; i < OutputWriter.inputFormat.size(); i++) {
-			Vector inputVector =
-				(Vector) (OutputWriter.inputFormat.elementAt(i));
-			str += ((String) (inputVector.elementAt(0)) + " input integer \"" +
-			(String) (inputVector.elementAt(1)) + "\" [ ");
-
-			for (int j = 2; j < inputVector.size(); j++) {
-				InputStatement is = (InputStatement) (inputVector.elementAt(j));
-				str += (is.getOutputLine() + " ");
+			if( i != 0 ) {
+				str += ",\n";
 			}
 
-			str += "]\n";
+			Vector inputVector =
+				(Vector) (OutputWriter.inputFormat.elementAt(i));
+			
+			str += "\t[\"" + inputVector.elementAt(0) + "\",\"integer\",[";
+
+			for (int j = 2; j < inputVector.size(); j++) {
+
+				InputStatement is = (InputStatement) (inputVector.elementAt(j));				
+				if( j != 2 ) {
+					str += ",";					
+				}
+
+				str += is.getOutputLine();
+			}
+
+			str += "]]";
 		}
 
+		str += "\n],\n";
+		str += "\"output\":[\n";
+
 		// add output statements
-		StructType output = (StructType) (Type.fromName("Output"));
+		StructType output = (StructType)returnType; // (Type.fromName("Output"));
 		str += output.toFormat("output", this);
+
+		str += "\n]}\n";
 
 		return str;
 	}

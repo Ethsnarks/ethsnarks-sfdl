@@ -71,8 +71,8 @@ public class UnaryOpExpression extends OperationExpression {
 			       "] inputs []";
 		}
 
-		return ((OutputWriter) op).toString() + " inputs [ " +
-		       ((OutputWriter) middle).toString() + " ]";
+		return ((OutputWriter) op).toString() + " in 2 < " +
+		       ((OutputWriter) middle).toString() + " >";
 	}
 
 	/**
@@ -118,14 +118,14 @@ public class UnaryOpExpression extends OperationExpression {
 	public void toCircuit(PrintWriter circuit) {
 		if (((PrimitiveOperator) op).isID() &&
 			    middle instanceof ConstExpression) {
-			circuit.print("gate arity 0 table [");
+			circuit.print("table 1 [");
 			((OutputWriter) middle).toCircuit(circuit);
-			circuit.print("] inputs []");
+			circuit.print("] in <>");
 		} else {
 			((OutputWriter) op).toCircuit(circuit);
-			circuit.print(" inputs [ ");
+			circuit.print(" in 1 < ");
 			((OutputWriter) middle).toCircuit(circuit);
-			circuit.print(" ]");
+			circuit.print(" >");
 		}
 	}
 

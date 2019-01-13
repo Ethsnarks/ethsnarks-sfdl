@@ -2,7 +2,7 @@
  * Check which of two Millionaires is richer
  */
 program Millionaires {
-        type int = Int<4>; // 4-bit integer
+        type int = Int<128>; // 4-bit integer
 	type AliceInput = int;
 	type BobInput = int;
 	type AliceOutput = Boolean; 

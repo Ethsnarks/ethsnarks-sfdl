@@ -89,8 +89,8 @@ public class Program {
 
 		// start with the two constant gate false and true.
 		if (! opt) {
-			circuit.println("0 gate arity 0 table [0] inputs [] // false");
-			circuit.println("1 gate arity 0 table [1] inputs [] //true");
+			circuit.println("const-mul-0 in 1 <0> out 1 <0>   # false, zero");
+			circuit.println("input 1 # true, one");
 			circuitLineCounter = 2;
 		}
 

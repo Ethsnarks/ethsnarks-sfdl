@@ -46,7 +46,7 @@ public class InputStatement extends Statement implements OutputWriter, Optimize 
 	 * @return a string representation of the object.
 	 */
 	public String toString() {
-		return "input " + input + "\n";
+		return "nizkinput " + input;
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class InputStatement extends Statement implements OutputWriter, Optimize 
 	 */
 	public void toCircuit(PrintWriter circuit) {
 		outputLine = Program.getLineNumber();
-		circuit.println(outputLine + " input\t\t//" + input.getName());
+		circuit.println("input " + outputLine + "\t\t#" + getName());
 	}
 
 	/**
@@ -118,13 +118,6 @@ public class InputStatement extends Statement implements OutputWriter, Optimize 
 		// the input vector goes into the OutputWriter for writing the
 		// format file at the end.
 		Vector inputVector = new Vector();
-
-		// first player's name of this input
-		if (inputName.startsWith("output$input.alice")) {
-			inputVector.add("Alice");
-		} else {
-			inputVector.add("Bob");
-		}
 
 		// remove the "output$" prefix and add to the vector
 		inputVector.add(inputName.substring(7));
