@@ -2,15 +2,11 @@
  * Check which of two Millionaires is richer
  */
 program Millionaires {
-        type int = Int<4>; // 4-bit integer
-	type AliceInput = int;
-	type BobInput = int;
-	type AliceOutput = Boolean; 
-	type BobOutput = Boolean;
-	type Output = struct {AliceOutput alice,
-            BobOutput bob};
-	type Input = struct {AliceInput alice,
-            BobInput bob};
+    type int = Int<3>;
+	type Output = struct {Boolean alice,
+            Boolean bob};
+	type Input = struct {int alice,
+            int bob};
 
 	function Output output(Input input) {
             output.alice = (input.alice > input.bob);

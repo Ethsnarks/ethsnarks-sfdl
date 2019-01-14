@@ -1,19 +1,11 @@
 program beta {
   type int = Int<31>;
 
-  type AliceInput = int;
-  type BobInput = int;
+  type Input = struct {int alice, int bob};
+  type MyStruct = struct {int alice, int bob};
 
-  type AliceOutput = int;
-  type BobOutput = int;
-
-  type Input = struct {AliceInput alice, BobInput bob};
-  type Output = struct {AliceOutput alice, BobOutput bob};
-
-  function Output output(Input input) {
-    //var int x;
-    //x = -20;
+  function MyStruct output(Input input, int derp) {
     output.alice = input.alice - input.bob;
-    output.bob = input.bob - 20;
+    output.bob = input.bob - derp;
   }
 }

@@ -81,6 +81,6 @@ public class BooleanConstant extends ConstExpression implements OutputWriter {
 	 * @param circuit the output circuit.
 	 */
 	public void toCircuit(PrintWriter circuit) {
-		circuit.print((booleanConst) ? "1" : "0");
+		circuit.print((booleanConst) ? "$ONE" : "$ZERO");
 	}
 }

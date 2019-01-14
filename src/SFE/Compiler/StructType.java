@@ -96,6 +96,11 @@ public class StructType extends ParentType {
 			String name = (String) fieldsName.elementAt(f);
 			Type   type = (Type) fieldsType.elementAt(f);
 
+			if( f != 0 ) {
+				str += ",\n";
+			}
+			str += "\t";
+
 			if (type instanceof StructType) {
 				str += ((StructType) type).toFormat(parentName + "." + name,
 				                                    function);
@@ -103,30 +108,26 @@ public class StructType extends ParentType {
 				str += ((ArrayType) type).toFormat(parentName + "." + name,
 				                                   function);
 			} else {
-				// get input/ouput and alice/bob
+				// get input/ouput
 				String params   = parentName + "." + name;
-				String alicebob;
 
-				if (params.startsWith("output.alice")) {
-					alicebob = "Alice";
-				} else {
-					alicebob = "Bob";
-				}
-
-				// <Alice|Bob> <Input|Ouput> <type> <prompt(field name)> <'[' input bits ']'>
-				str += (alicebob + " output " + type.toFormat() + " \"" +
-				params + "\" [ ");
+				// <Input|Ouput> <type> <prompt(field name)> <'[' input bits ']'>
+				str += "[\"" + params + "\",\"" + type.toFormat() + "\",[";
 
 				for (int i = 0; i < type.size(); i++) {
+					if( i != 0) {
+						str += ",";
+					}
+
 					AssignmentStatement s =
 						(AssignmentStatement) (Function.getVar(parentName +
 						                                       "." + name +
 						                                       "$" + i)
 						                               .getAssigningStatement());
-					str += (s.getOutputLine() + " ");
+					str += s.getOutputLine();
 				}
 
-				str += "]\n";
+				str += "]]";
 			}
 		}
 

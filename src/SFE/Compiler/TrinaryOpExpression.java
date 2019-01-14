@@ -64,10 +64,10 @@ public class TrinaryOpExpression extends OperationExpression {
 	 * output circuit.
 	 */
 	public String toString() {
-		return ((OutputWriter) op).toString() + " inputs [ " +
+		return ((OutputWriter) op).toString() + " in < " +
 		       ((OutputWriter) right).toString() + " " +
 		       ((OutputWriter) middle).toString() + " " +
-		       ((OutputWriter) left).toString() + " ]";
+		       ((OutputWriter) left).toString() + " >";
 	}
 
 	/**
@@ -101,13 +101,13 @@ public class TrinaryOpExpression extends OperationExpression {
 	 */
 	public void toCircuit(PrintWriter circuit) {
 		((OutputWriter) op).toCircuit(circuit);
-		circuit.print(" inputs [ ");
+		circuit.print(" in 3 < ");
 		((OutputWriter) right).toCircuit(circuit);
 		circuit.print(" ");
 		((OutputWriter) middle).toCircuit(circuit);
 		circuit.print(" ");
 		((OutputWriter) left).toCircuit(circuit);
-		circuit.print(" ]");
+		circuit.print(" >");
 	}
 
 	/**

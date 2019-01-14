@@ -395,7 +395,7 @@ public class PrimitiveOperator extends Operator implements OutputWriter {
 	 * output circuit.
 	 */
 	public void toCircuit(PrintWriter circuit) {
-		circuit.print("gate arity " + arity() + " table [ ");
+		circuit.print("table " + arity() + " [ ");
 
 		for (int i = 0; i < truthTable.length; i++)
 			circuit.print(((truthTable[i]) ? '1' : '0') + " ");
@@ -409,7 +409,7 @@ public class PrimitiveOperator extends Operator implements OutputWriter {
 	 * output circuit.
 	 */
 	public String toString() {
-		String str = "gate arity " + arity() + " table [ ";
+		String str = "table " + arity() + " [ ";
 
 		for (int i = 0; i < truthTable.length; i++)
 			str += (((truthTable[i]) ? '1' : '0') + " ");
@@ -970,23 +970,22 @@ public class PrimitiveOperator extends Operator implements OutputWriter {
 	private static final boolean[][] PRIMITIVE_TRUTH_TABLES =
 	{
 	    { true, false }, //not
-	{ false, false, false, true }, //and
-	{ false, true, true, true }, //or
-	{ true, true, true, false }, //nand
-	{ true, false, false, false }, //nor
-	{ false, false, true, false }, //andn
-	{ true, false, true, true }, //orn
-	{ false, true, true, false }, //xor
-	{ true, false, false, true }, //eq
-	{ false, true, false, true, false, false, true, true }, //mux
-	{ true, false, true, false, true, true, false, false }, //nmux
-	{ false, true, false, true, true, true, false, false }, //muxn
-	{ true, false, true, false, false, false, true, true }, //nmuxn
-	{ false, false, false, true, false, true, true, true }, //maj
-	{ true, true, true, false, true, false, false, false }, //nmaj
-	{ false, false, true, false, true, false, true, true }, //majn
-	{ true, true, false, true, false, true, false, false }, //nmajn
-	{ false, true // id
-	}
+		{ false, false, false, true }, //and
+		{ false, true, true, true }, //or
+		{ true, true, true, false }, //nand
+		{ true, false, false, false }, //nor
+		{ false, false, true, false }, //andn
+		{ true, false, true, true }, //orn
+		{ false, true, true, false }, //xor
+		{ true, false, false, true }, //eq
+		{ false, true, false, true, false, false, true, true }, //mux
+		{ true, false, true, false, true, true, false, false }, //nmux
+		{ false, true, false, true, true, true, false, false }, //muxn
+		{ true, false, true, false, false, false, true, true }, //nmuxn
+		{ false, false, false, true, false, true, true, true }, //maj
+		{ true, true, true, false, true, false, false, false }, //nmaj
+		{ false, false, true, false, true, false, true, true }, //majn
+		{ true, true, false, true, false, true, false, false }, //nmajn
+		{ false, true } // id
 	};
 }

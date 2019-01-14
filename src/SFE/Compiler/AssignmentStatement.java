@@ -94,9 +94,14 @@ public class AssignmentStatement extends Statement implements OutputWriter,
 	public void toCircuit(PrintWriter circuit) {
 		outputLine = Program.getLineNumber();
 
-		circuit.print(outputLine + " " + ((lhs.isOutput()) ? "output " : ""));
+		//circuit.print(outputLine + " " + ((lhs.isOutput()) ? "output " : ""));
+		if( lhs.isOutput() ) {
+			circuit.println("output " + outputLine);
+		}
+		
 		((OutputWriter) rhs).toCircuit(circuit);
-		circuit.println(((lhs.isOutput()) ? ("\t//" + lhs.getName()) : ""));
+		circuit.print(" out 1 < " + outputLine + " >");
+		circuit.println(((lhs.isOutput()) ? ("\t#" + lhs.getName()) : ""));		
 	}
 
 	/**
