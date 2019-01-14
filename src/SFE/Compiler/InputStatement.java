@@ -79,7 +79,7 @@ public class InputStatement extends Statement implements OutputWriter, Optimize 
 	 */
 	public void toCircuit(PrintWriter circuit) {
 		outputLine = Program.getLineNumber();
-		circuit.println("input " + outputLine + "\t\t#" + getName());
+		circuit.println("nizkinput " + outputLine + "\t\t#" + getName());
 	}
 
 	/**

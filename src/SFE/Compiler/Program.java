@@ -88,11 +88,14 @@ public class Program {
 		resetCounter();
 
 		// start with the two constant gate false and true.
+		/*
+		// No longer necessary, as using $ONE and $ZERO 'variables'
 		if (! opt) {
 			circuit.println("const-mul-0 in 1 <0> out 1 <0>   # false, zero");
 			circuit.println("input 1 # true, one");
 			circuitLineCounter = 2;
 		}
+		*/
 
 		output.toCircuit(circuit);
 

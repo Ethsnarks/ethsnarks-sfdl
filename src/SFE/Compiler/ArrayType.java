@@ -127,10 +127,13 @@ public class ArrayType extends ParentType {
 				// get input/ouput
 				String params   = parentName + "[" + i + "]";
 
+				if( i != 0 )  {
+					str += ",\n";
+				}
+
 				// <Input|Ouput> <type> <prompt(field name)> 
 				// <'[' input bits ']'>
-				str += (" output " + baseType.toFormat() + " \"" +
-				params + "\" [ ");
+				str += "\t[\"" + params + "\",\"" + baseType.toFormat() + "\", [";
 
 				for (int j = 0; j < baseType.size(); j++) {
 					AssignmentStatement s =
@@ -141,7 +144,7 @@ public class ArrayType extends ParentType {
 					str += (s.getOutputLine() + " ");
 				}
 
-				str += "]\n";
+				str += "]";
 			}
 		}
 
